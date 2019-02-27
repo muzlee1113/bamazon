@@ -4,6 +4,7 @@ var inquirer = require("inquirer")
 
 // set a global variable for inventory length
 var length = 0;
+// var departmentArr = [];
 
 
 // connect with mysql local host
@@ -52,8 +53,7 @@ function selectAction() {
 
             // run the promptAddProduct function to prompt questions that set up a new product
             console.log("=============================================")
-            console.log("Please fill in the product information:")
-            promptAddProduct()
+            beforePromptAddProduct()
         } else {
             console.log("I don't know what you want to do.")
         }
@@ -131,7 +131,7 @@ function beforePromptAddQuant() {
             console.log(res.length + " items in the inventory!")
             length = res.length
             console.log("\n" + "Please fill in the product information:")
-            promptAddQuant() 
+            promptAddQuant()
         });
     })
 }
@@ -186,8 +186,27 @@ function updateDB(selectId, quant) {
     );
 }
 
+// get thde exisiting department arr for the prompt first
+function beforePromptAddProduct() {
+    connection.connect(function (err) {
+        if (err) throw err;
+        // console.log("connected as id " + connection.threadId + "\n");
+        connection.query("SELECT * FROM departments", function (err, res) {
+            var departmentArr = []
+            if (err) throw err;
+            // Log all results of the SELECT statement
+            for (let i in res) {
+                departmentArr.push(res[i].department_name)
+            }
+            console.log(departmentArr)
+
+            console.log("\n" + "Please fill in the new product information:")
+            promptAddProduct(departmentArr)
+        });
+    })
+}
 // If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
-function promptAddProduct() {
+function promptAddProduct(departmentArr) {
 
     inquirer.prompt([
         {
@@ -196,9 +215,9 @@ function promptAddProduct() {
             name: "product_name"
         },
         {
-            type: "list",
+            type: "rawlist",
             message: "Department Name: ",
-            choices: ["Electronic", "Household", "Health & Personal Care", "Beauty", "Food", "Toys", "Pet", "Clothes", "Others"],
+            choices: departmentArr,
             name: "department_name",
         },
         {

@@ -17,7 +17,9 @@ CREATE TABLE products (
     -- price (cost to customer)
     price DECIMAL(10, 2),
     -- stock_quantity (how much of the product is available in stores)-- column name| column type| can be null or not
-    stock_quantity INTEGER DEFAULT 0
+    stock_quantity INTEGER DEFAULT 0,
+    -- Modify the products table so that there's a product_sales column,
+    product_sales DECIMAL(10, 2)
 );
 
 -- Populate this database with around 10 different products. (i.e. Insert "mock" data rows into this database and table).
@@ -40,5 +42,4 @@ VALUES  ("AJAX Liquid Dish Soap", "Household", 4.90, 100),
         ("Baebody Tea Tree Oil Shampoo", "Health & Personal Care", 10.00, 48);
         
 
--- Modify the products table so that there's a product_sales column,
 

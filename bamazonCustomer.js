@@ -90,20 +90,25 @@ function check(selectId, quant) {
             var left = parseInt(res[0].stock_quantity) - parseInt(quant)
             var totalPrice = (parseFloat(res[0].price) * parseInt(quant)).toFixed(2)
             updateDB(selectId, left, totalPrice)
+
         }
     })
 }
 
 
-// This means updating the SQL database to reflect the remaining quantity.
-// Once the update goes through, show the customer the total cost of their purchase.
-//function that update product stock quantity product to the database
+// updating the SQL database to reflect the remaining quantity.
 function updateDB(selectId, left, totalPrice) {
+    // Once the update goes through, show the customer the total cost of their purchase.
+    // function that update product stock quantity product to the database
+    
     var query = connection.query(
         "UPDATE products SET ? WHERE ?",
         [
             {
+                // update product's stock_quantity column.
                 stock_quantity: left,
+                // update product's product_sales column.
+                product_sales : totalPrice
             },
             {
                 item_id: selectId
@@ -111,18 +116,15 @@ function updateDB(selectId, left, totalPrice) {
         ],
         function (err, res) {
             if (err) throw err;
-            // console.log(res.affectedRows + " data updated!\n");
-            console.log("Total price is " + totalPrice + 
-            "\nThank you for your purchase!")
+            console.log(res.affectedRows + " data updated!\n");
+            console.log("Total price is " + totalPrice +
+                "\nThank you for your purchase!")
             connection.end()
         }
     );
+   
 }
 
 
 
 
-
-// modify your bamazonCustomer.js app so that when a customer purchases anything from the store, the price of the product multiplied by the quantity purchased is added to the product's product_sales column.
-
-// Make sure your app still updates the inventory listed in the products column.
