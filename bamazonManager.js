@@ -198,8 +198,6 @@ function beforePromptAddProduct() {
             for (let i in res) {
                 departmentArr.push(res[i].department_name)
             }
-            console.log(departmentArr)
-
             console.log("\n" + "Please fill in the new product information:")
             promptAddProduct(departmentArr)
         });

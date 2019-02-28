@@ -55,12 +55,13 @@ function selectAction() {
 function salesByDepartment() {
     // When a supervisor selects View Product Sales by Department, the app should display a summarized table in their terminal/bash window. Use the table below as a guide.
 
-    var query = "SELECT departments.department_id as 'Department ID',departments.department_name as 'Department Name',departments.over_head_costs as 'Over Head Costs', sum(products.product_sales) as 'Total Sales', (sum(products.product_sales) - departments.over_head_costs) AS 'Total Profit' FROM products INNER JOIN departments ON products.department_name = departments.department_name GROUP BY departments.department_id"
+    var query = "SELECT departments.department_id as 'Department ID',departments.department_name as 'Department Name',departments.over_head_costs as 'Over Head Costs', sum(products.product_sales) as 'Total Sales', (sum(products.product_sales) - departments.over_head_costs) AS 'Total Profit' FROM products RIGHT JOIN departments ON products.department_name = departments.department_name GROUP BY departments.department_id"
     // console.log(query)
     connection.query(query, function (err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
         console.table(res);
+        console.log("# 'null' in Total Sales and Total Profit means there isn't any product in this department." )
         connection.end();
     });
 }
