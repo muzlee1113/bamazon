@@ -88,19 +88,21 @@ function check(selectId, quant) {
             // However, if your store does have enough of the product, you should fulfill the customer's order.
             console.log("Your order has been placed!")
             var left = parseInt(res[0].stock_quantity) - parseInt(quant)
+            console.log(parseFloat(res[0].product_sales))
             var totalPrice = (parseFloat(res[0].price) * parseInt(quant)).toFixed(2)
-            updateDB(selectId, left, totalPrice)
-
+            var product_sales = (parseFloat(totalPrice) + parseFloat(res[0].product_sales)).toFixed(2)
+            console.log(totalPrice)
+            updateDB(selectId, left, totalPrice, product_sales)
         }
     })
 }
 
 
 // updating the SQL database to reflect the remaining quantity.
-function updateDB(selectId, left, totalPrice) {
+function updateDB(selectId, left, totalPrice, product_sales) {
     // Once the update goes through, show the customer the total cost of their purchase.
     // function that update product stock quantity product to the database
-    
+
     var query = connection.query(
         "UPDATE products SET ? WHERE ?",
         [
@@ -108,7 +110,7 @@ function updateDB(selectId, left, totalPrice) {
                 // update product's stock_quantity column.
                 stock_quantity: left,
                 // update product's product_sales column.
-                product_sales : totalPrice
+                product_sales: product_sales
             },
             {
                 item_id: selectId
@@ -122,7 +124,7 @@ function updateDB(selectId, left, totalPrice) {
             connection.end()
         }
     );
-   
+
 }
 
 

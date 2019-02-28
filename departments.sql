@@ -10,7 +10,7 @@ CREATE TABLE departments (
     -- department_name
     department_name VARCHAR(255),
     -- over_head_costs
-    over_head_costs INTEGER
+    over_head_costs INTEGER default 0
     -- -- Modify the products table so that there's a product_sales column,
     -- product_sales DECIMAL(10, 2)
 );
