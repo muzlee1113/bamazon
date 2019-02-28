@@ -88,10 +88,8 @@ function check(selectId, quant) {
             // However, if your store does have enough of the product, you should fulfill the customer's order.
             console.log("Your order has been placed!")
             var left = parseInt(res[0].stock_quantity) - parseInt(quant)
-            console.log(parseFloat(res[0].product_sales))
             var totalPrice = (parseFloat(res[0].price) * parseInt(quant)).toFixed(2)
             var product_sales = (parseFloat(totalPrice) + parseFloat(res[0].product_sales)).toFixed(2)
-            console.log(totalPrice)
             updateDB(selectId, left, totalPrice, product_sales)
         }
     })
