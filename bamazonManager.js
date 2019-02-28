@@ -4,10 +4,9 @@ var inquirer = require("inquirer")
 
 // set a global variable for inventory length
 var length = 0;
-// var departmentArr = [];
 
 
-// connect with mysql local host
+// set up database
 var connection = mysql.createConnection({
     host: "localhost",
     // Your port; if not 3306
@@ -19,9 +18,10 @@ var connection = mysql.createConnection({
     database: "bamazon_db"
 });
 
+// call the initial function for the manager to select what they want to do
 selectAction()
 
-// List a set of menu options:
+// initial function that list a set of menu options:
 function selectAction() {
     inquirer.prompt([
         {
@@ -60,13 +60,15 @@ function selectAction() {
     })
 }
 
-
+// =================================================== 1. View Products for Sale ===================================================
 // If a manager selects View Products for Sale, the app should list every available item: the item IDs, names, prices, and quantities.
 function list() {
+    // connect with the database
     connection.connect(function (err) {
         if (err) throw err;
         // console.log("connected as id " + connection.threadId + "\n");
         console.log("Here are all the available products:\n");
+        // make a query for the whole inventory and display it with some format
         connection.query("SELECT * FROM products", function (err, res) {
             if (err) throw err;
             // Log all results of the SELECT statement
@@ -80,18 +82,22 @@ function list() {
                 );
             }
             console.log(res.length + " items available!")
+            // end the connection
             connection.end();
         });
     });
 }
 
+// =================================================== 2. View Low Inventory ===================================================
 // If a manager selects View Low Inventory, then it should list all items with an inventory count lower than five.
 function lowInventory() {
+    // connect with the database
     connection.connect(function (err) {
         if (err) throw err;
         // console.log("connected as id " + connection.threadId + "\n");
         console.log("Here are all the low inventory:\n");
         console.log()
+        // make a query for the the rows that has stock quant lower than 5 and display it with some format
         connection.query("SELECT * FROM products WHERE `stock_quantity` < 5 ", function (err, res) {
             if (err) throw err;
             // Log all results of the SELECT statement
@@ -105,12 +111,16 @@ function lowInventory() {
                 );
             }
             console.log("\n" + res.length + " items are running out!")
+            // end the connection
             connection.end();
         });
     });
 }
 
+// =================================================== 3. Add to Inventory ===================================================
 // If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
+
+// a function to show the whole inventory and update the length of the inventory, so that the manager can refer to when they select the id they want to add some stock
 function beforePromptAddQuant() {
     connection.connect(function (err) {
         if (err) throw err;
@@ -129,13 +139,16 @@ function beforePromptAddQuant() {
                 );
             }
             console.log(res.length + " items in the inventory!")
+            // update the length the inventory
             length = res.length
             console.log("\n" + "Please fill in the product information:")
+            // run the function that prompt the manager to add stock for a specific product
             promptAddQuant()
         });
     })
 }
 
+// function that prompt the manager to add stock to one of the products
 function promptAddQuant() {
     inquirer.prompt([
         {
@@ -156,11 +169,14 @@ function promptAddQuant() {
         }
     ]).then(function (answers) {
         // console.log(inquirerResponse)
+        // check if the id is valid
         if (answers.confirm) {
+            // if not ask for a valid id and run the prompt again
             if (parseInt(answers.item_id) > length || !Number.isInteger(parseInt(answers.item_id))) {
                 console.log("Please enter a valid Item ID!")
                 promptAddQuant()
             } else {
+            // if is console the amount the manager is going to add and which product they select and run the function to update the database
                 console.log("Going to add " + answers.add_quantity + " of item " + answers.item_id + " to the inventory...");
                 updateDB(answers.item_id, answers.add_quantity)
             }
@@ -174,7 +190,7 @@ function promptAddQuant() {
 }
 
 
-//function that update product stock quantity product to the database
+//function that update product stock quantity to the database
 function updateDB(selectId, quant) {
     var query = connection.query(
         "UPDATE products SET stock_quantity = stock_quantity + " + parseInt(quant) + " WHERE item_id = " + selectId + ";",
@@ -186,7 +202,10 @@ function updateDB(selectId, quant) {
     );
 }
 
-// get thde exisiting department arr for the prompt first
+
+
+// =================================================== 4. Add New Product ===================================================
+// a prepare function that gets thde exisiting department arr for the prompt 
 function beforePromptAddProduct() {
     connection.connect(function (err) {
         if (err) throw err;
@@ -199,11 +218,12 @@ function beforePromptAddProduct() {
                 departmentArr.push(res[i].department_name)
             }
             console.log("\n" + "Please fill in the new product information:")
+            // run the function that prompt the manager to add a new product
             promptAddProduct(departmentArr)
         });
     })
 }
-// If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
+// a function that prompts the manager to add a completely new product to the store.
 function promptAddProduct(departmentArr) {
 
     inquirer.prompt([
@@ -242,6 +262,7 @@ function promptAddProduct(departmentArr) {
         }
         else {
             console.log("Please decide carefully again then.")
+            // run the funciton that insert the new product to the products table of the database
             promptAddProduct()
         }
 
@@ -251,7 +272,7 @@ function promptAddProduct(departmentArr) {
 
 
 
-//function that add product to the database
+// a function that adds product to the database
 function addProduct(product_name, department_name, price, stock_quantity) {
     var query = connection.query(
         "INSERT INTO bamazon_db.products SET ?",
@@ -268,5 +289,6 @@ function addProduct(product_name, department_name, price, stock_quantity) {
 
     )
     // console.log(query.sql);
+    // end the connection
     connection.end();
 };
